@@ -49,37 +49,46 @@ function deactivate
     echo "Mock deactivate called"
 end
 
-# Mock poetry command
-function poetry
-    if test "$argv[1]" = env -a "$argv[2]" = info -a "$argv[3]" = -p
-        # Create a mock virtual env structure for testing
-        mkdir -p /tmp/mock_poetry_venv/bin
-        echo "# Mock activate script" > /tmp/mock_poetry_venv/bin/activate.fish
-        echo /tmp/mock_poetry_venv
-        return 0
-    end
-    if test "$argv[1]" = "--version"
-        echo "Poetry version 1.2.0"
-        return 0
-    end
-    return 1
+# Create a temporary poetry project for testing
+function setup_test_poetry_project
+    echo "Creating test Poetry project..."
+    cd /tmp/test_poetry_project
+    
+    # Initialize a real Poetry project
+    command poetry init --name=test-project --description="Test project" --author="Test <test@example.com>" --no-interaction
+    
+    # Make sure we have a virtual environment
+    command poetry install --no-root --no-ansi
+    
+    echo "Poetry project created and virtual environment initialized"
 end
 
-# Mock source for .venv activation
+# Custom wrapper for source to log activations
 function source
+    echo "Sourcing: $argv[1]"
+    
+    # Track if we're activating a virtualenv
     if string match -q "*activate.fish" $argv[1]
-        set -g VIRTUAL_ENV (dirname (dirname $argv[1]))
-        echo "Mock source called with $argv[1]"
-        echo "VIRTUAL_ENV set to $VIRTUAL_ENV"
-        return 0
+        echo "Activating virtual environment"
     end
-    # Otherwise pass to real source
+    
+    # Use the real source command
     builtin source $argv
 end
 
-# Create test .venv for project directory
-mkdir -p /tmp/test_poetry_project/.venv/bin
-echo "# Mock activate script" > /tmp/test_poetry_project/.venv/bin/activate.fish
+# Function to check if we're in a virtual environment
+function is_in_venv
+    if set -q VIRTUAL_ENV
+        echo "In virtual environment: $VIRTUAL_ENV"
+        return 0
+    else
+        echo "Not in a virtual environment"
+        return 1
+    end
+end
+
+# Setup real Poetry project
+setup_test_poetry_project
 
 echo "=== Poetry Auto Fish Tests ==="
 
@@ -135,9 +144,18 @@ end
 # Test 2: With pyproject.toml (Poetry project)
 echo "Test 2: Poetry project directory"
 cd /tmp/test_poetry_project
+
+# Make sure we're not in a virtualenv before starting
+if set -q VIRTUAL_ENV
+    deactivate
+end
+
 setup_test
+echo "Running auto_poetry in Poetry project directory"
 auto_poetry
-if test -n "$VIRTUAL_ENV"
+
+# Check if auto_poetry activated a virtualenv
+if is_in_venv
     echo "✅ Test 2 passed: Virtual environment activated"
 else
     echo "❌ Test 2 failed: Virtual environment should be activated"
@@ -158,9 +176,22 @@ end
 
 # Test 4: Deactivation when leaving project
 echo "Test 4: Deactivation when leaving directory"
+
+# First, make sure we're in the poetry project with an active venv
+cd /tmp/test_poetry_project
+setup_test
+auto_poetry
+
+# Confirm we're in a virtualenv before leaving
+is_in_venv
+
+# Now change to a directory without a poetry project
+echo "Changing to non-poetry directory"
 cd /tmp/test_regular_dir
 setup_test
 auto_poetry
+
+# Check if auto_poetry deactivated the virtualenv
 if not set -q VIRTUAL_ENV
     echo "✅ Test 4 passed: Virtual environment deactivated"
 else
@@ -171,10 +202,20 @@ end
 
 # Test 5: Disabled functionality
 echo "Test 5: Disabled functionality"
+
+# Make sure we're not in a virtualenv
+if set -q VIRTUAL_ENV
+    deactivate
+end
+
+# Disable auto-activation
 set -g POETRY_AUTO_DISABLE 1
 cd /tmp/test_poetry_project
 setup_test
+echo "Running auto_poetry with POETRY_AUTO_DISABLE=1"
 auto_poetry
+
+# Check that auto_poetry didn't activate the virtualenv
 if not set -q VIRTUAL_ENV
     echo "✅ Test 5 passed: Auto-activation disabled correctly"
 else
