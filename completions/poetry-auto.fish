@@ -17,12 +17,12 @@ function __poetry_auto_using_command
 end
 
 # Define subcommands
-complete -f -c poetry-auto -n '__poetry_auto_needs_command' -a enable -d 'Enable poetry auto-activation'
-complete -f -c poetry-auto -n '__poetry_auto_needs_command' -a disable -d 'Disable poetry auto-activation'
-complete -f -c poetry-auto -n '__poetry_auto_needs_command' -a toggle -d 'Toggle poetry auto-activation'
-complete -f -c poetry-auto -n '__poetry_auto_needs_command' -a status -d 'Show poetry auto-activation status'
-complete -f -c poetry-auto -n '__poetry_auto_needs_command' -a verbose -d 'Toggle verbose mode'
-complete -f -c poetry-auto -n '__poetry_auto_needs_command' -a cache -d 'Manage environment cache'
+complete -f -c poetry-auto -n __poetry_auto_needs_command -a enable -d 'Enable poetry auto-activation'
+complete -f -c poetry-auto -n __poetry_auto_needs_command -a disable -d 'Disable poetry auto-activation'
+complete -f -c poetry-auto -n __poetry_auto_needs_command -a toggle -d 'Toggle poetry auto-activation'
+complete -f -c poetry-auto -n __poetry_auto_needs_command -a status -d 'Show poetry auto-activation status'
+complete -f -c poetry-auto -n __poetry_auto_needs_command -a verbose -d 'Toggle verbose mode'
+complete -f -c poetry-auto -n __poetry_auto_needs_command -a cache -d 'Manage environment cache'
 
 # Subcommand options
 complete -f -c poetry-auto -n '__poetry_auto_using_command cache' -a clear -d 'Clear environment cache'

@@ -4,12 +4,12 @@ function poetry-auto --description "Manage Poetry auto-activation"
         poetry-auto status
         return
     end
-    
+
     switch $argv[1]
         case enable
             set -g POETRY_AUTO_DISABLE 0
             echo "Poetry auto-activation enabled"
-            
+
         case disable
             set -g POETRY_AUTO_DISABLE 1
             if set -q VIRTUAL_ENV
@@ -17,14 +17,14 @@ function poetry-auto --description "Manage Poetry auto-activation"
                 deactivate
             end
             echo "Poetry auto-activation disabled"
-            
+
         case toggle
             if test "$POETRY_AUTO_DISABLE" = 1
                 poetry-auto enable
             else
                 poetry-auto disable
             end
-            
+
         case verbose
             if test "$POETRY_AUTO_VERBOSE" = 1
                 set -g POETRY_AUTO_VERBOSE 0
@@ -33,7 +33,7 @@ function poetry-auto --description "Manage Poetry auto-activation"
                 set -g POETRY_AUTO_VERBOSE 1
                 echo "Verbose mode enabled"
             end
-            
+
         case status
             echo "Poetry auto-activation: "(test "$POETRY_AUTO_DISABLE" = 1 && echo "disabled" || echo "enabled")
             echo "Verbose mode: "(test "$POETRY_AUTO_VERBOSE" = 1 && echo "enabled" || echo "disabled")
@@ -46,14 +46,14 @@ function poetry-auto --description "Manage Poetry auto-activation"
             else
                 echo "No active environment"
             end
-            
+
         case cache
             # Handle cache subcommands
             if test (count $argv) -eq 1
                 echo "Usage: poetry-auto cache [status|clear]"
                 return 1
             end
-            
+
             switch $argv[2]
                 case status
                     echo "Cache directory: $POETRY_AUTO_CACHE_DIR"
@@ -63,7 +63,7 @@ function poetry-auto --description "Manage Poetry auto-activation"
                     else
                         echo "Cache directory does not exist"
                     end
-                    
+
                 case clear
                     if test -d "$POETRY_AUTO_CACHE_DIR"
                         rm -rf "$POETRY_AUTO_CACHE_DIR"/*
@@ -72,13 +72,13 @@ function poetry-auto --description "Manage Poetry auto-activation"
                     else
                         echo "Cache directory does not exist"
                     end
-                    
+
                 case '*'
                     echo "Unknown cache subcommand: $argv[2]"
                     echo "Usage: poetry-auto cache [status|clear]"
                     return 1
             end
-            
+
         case help '*'
             echo "poetry-auto: Manage Poetry environment auto-activation"
             echo

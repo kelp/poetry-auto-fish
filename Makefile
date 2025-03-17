@@ -9,10 +9,8 @@ test:
 lint:
 	@echo "Linting fish files..."
 	@if command -v fish_indent >/dev/null; then \
-		for file in functions/*.fish conf.d/*.fish completions/*.fish; do \
-			echo "Checking $$file"; \
-			fish_indent -c "$$file" || exit 1; \
-		done; \
+		echo "Checking files with fish_indent"; \
+		fish_indent -c functions/*.fish conf.d/*.fish completions/*.fish || exit 1; \
 	else \
 		echo "fish_indent not found, skipping lint"; \
 	fi

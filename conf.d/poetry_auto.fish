@@ -19,7 +19,7 @@ if test "$POETRY_AUTO_DISABLE" != 1
     function _run_auto_poetry --on-variable PWD
         auto_poetry
     end
-    
+
     # Run for the current directory on shell startup
     auto_poetry
 end

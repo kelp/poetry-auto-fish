@@ -5,7 +5,7 @@
 # Initialize variables for testing
 set -g POETRY_AUTO_DISABLE 0
 set -g POETRY_AUTO_VERBOSE 1
-set -g POETRY_AUTO_CACHE_DIR "/tmp/poetry_auto_test_cache"
+set -g POETRY_AUTO_CACHE_DIR /tmp/poetry_auto_test_cache
 
 # Setup test environment
 mkdir -p /tmp/test_poetry_project /tmp/test_regular_dir "$POETRY_AUTO_CACHE_DIR"
@@ -16,7 +16,7 @@ name = \"test-project\"
 version = \"0.1.0\"
 description = \"Test project for poetry-auto\"
 authors = [\"Test <test@example.com>\"]
-" > /tmp/test_poetry_project/pyproject.toml
+" >/tmp/test_poetry_project/pyproject.toml
 
 # Clean up function
 function cleanup
@@ -38,8 +38,8 @@ end
 
 # Mock poetry command
 function poetry
-    if test "$argv[1]" = "env" -a "$argv[2]" = "info" -a "$argv[3]" = "-p"
-        echo "/tmp/mock_poetry_venv"
+    if test "$argv[1]" = env -a "$argv[2]" = info -a "$argv[3]" = -p
+        echo /tmp/mock_poetry_venv
         return 0
     end
     return 1
@@ -62,7 +62,9 @@ echo "=== Poetry Auto Fish Tests ==="
 # Test 1: No pyproject.toml
 echo "Test 1: Regular directory (no pyproject.toml)"
 cd /tmp/test_regular_dir
-source (dirname (status filename))/../functions/auto_poetry.fish
+# Get the directory of this script and use relative paths
+set -l current_dir (status dirname)
+source $current_dir/../functions/auto_poetry.fish
 auto_poetry
 if set -q VIRTUAL_ENV
     echo "❌ Test 1 failed: Virtual environment should not be activated"
