@@ -39,6 +39,9 @@ end
 # Mock poetry command
 function poetry
     if test "$argv[1]" = env -a "$argv[2]" = info -a "$argv[3]" = -p
+        # Create a mock virtual env structure for testing
+        mkdir -p /tmp/mock_poetry_venv/bin
+        echo "# Mock activate script" > /tmp/mock_poetry_venv/bin/activate.fish
         echo /tmp/mock_poetry_venv
         return 0
     end
@@ -57,14 +60,44 @@ function source
     builtin source $argv
 end
 
+# Create test .venv for project directory
+mkdir -p /tmp/test_poetry_project/.venv/bin
+echo "# Mock activate script" > /tmp/test_poetry_project/.venv/bin/activate.fish
+
 echo "=== Poetry Auto Fish Tests ==="
+
+# Function to set up the test environment
+function setup_test
+    # Clear any existing state
+    if functions -q auto_poetry
+        functions -e auto_poetry
+    end
+    
+    # Source the function from the FUNCTIONS_DIR environment variable
+    # This is set by the Makefile to point to the correct location
+    if not set -q FUNCTIONS_DIR
+        echo "ERROR: FUNCTIONS_DIR environment variable not set"
+        exit 1
+    end
+    
+    echo "Sourcing from: $FUNCTIONS_DIR/auto_poetry.fish"
+    source $FUNCTIONS_DIR/auto_poetry.fish
+    
+    # Print debug information
+    echo "- POETRY_AUTO_CACHE_DIR: $POETRY_AUTO_CACHE_DIR"
+    echo "- Current directory: "(pwd)
+    if test -f pyproject.toml
+        echo "- pyproject.toml exists"
+        head -n 3 pyproject.toml
+    else
+        echo "- No pyproject.toml in current directory"
+    end
+end
 
 # Test 1: No pyproject.toml
 echo "Test 1: Regular directory (no pyproject.toml)"
 cd /tmp/test_regular_dir
-# Get the directory of this script and use relative paths
-set -l current_dir (status dirname)
-source $current_dir/../functions/auto_poetry.fish
+setup_test
 auto_poetry
 if set -q VIRTUAL_ENV
     echo "❌ Test 1 failed: Virtual environment should not be activated"
@@ -77,6 +110,7 @@ end
 # Test 2: With pyproject.toml (Poetry project)
 echo "Test 2: Poetry project directory"
 cd /tmp/test_poetry_project
+setup_test
 auto_poetry
 if test -n "$VIRTUAL_ENV"
     echo "✅ Test 2 passed: Virtual environment activated"
@@ -100,6 +134,7 @@ end
 # Test 4: Deactivation when leaving project
 echo "Test 4: Deactivation when leaving directory"
 cd /tmp/test_regular_dir
+setup_test
 auto_poetry
 if not set -q VIRTUAL_ENV
     echo "✅ Test 4 passed: Virtual environment deactivated"
@@ -113,6 +148,7 @@ end
 echo "Test 5: Disabled functionality"
 set -g POETRY_AUTO_DISABLE 1
 cd /tmp/test_poetry_project
+setup_test
 auto_poetry
 if not set -q VIRTUAL_ENV
     echo "✅ Test 5 passed: Auto-activation disabled correctly"
