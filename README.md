@@ -1,5 +1,9 @@
 # poetry-auto-fish 🐟+📜
 
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI Status](https://github.com/kelp/poetry-auto-fish/actions/workflows/test.yml/badge.svg)](https://github.com/kelp/poetry-auto-fish/actions)
+[![Fisher Plugin](https://img.shields.io/badge/Fisher-Plugin-00AEEF.svg)](https://github.com/jorgebucaran/fisher)
+
 > Automatically activate Poetry environments when changing directories in fish shell
 
 This plugin automatically detects and activates Poetry virtual environments when you change into a Poetry project directory, and deactivates them when you leave. It's fast, efficient, and configurable.
