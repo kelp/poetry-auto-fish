@@ -13,11 +13,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install Fish
+    - name: Install Fish and Poetry
       run: |
         sudo apt-add-repository ppa:fish-shell/release-3
         sudo apt update
-        sudo apt install -y fish
+        sudo apt install -y fish python3-pip
+        pip install poetry
         
     - name: Run tests
       run: make test-verbose

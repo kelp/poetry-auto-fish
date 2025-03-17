@@ -10,6 +10,16 @@ set -g POETRY_AUTO_CACHE_DIR /tmp/poetry_auto_test_cache
 # Ensure the cache directory exists
 mkdir -p $POETRY_AUTO_CACHE_DIR
 
+# Check if Poetry is available - this is critical for the tests
+echo "Checking Poetry installation..."
+if command -v poetry >/dev/null 2>&1
+    echo "✅ Poetry is installed: "(poetry --version)
+else
+    echo "❌ ERROR: Poetry is not installed or not in PATH. Tests will fail!"
+    echo "Please install Poetry first: https://python-poetry.org/docs/#installation"
+    # We continue anyway to see the test output
+end
+
 # Setup test environment
 mkdir -p /tmp/test_poetry_project /tmp/test_regular_dir "$POETRY_AUTO_CACHE_DIR"
 
