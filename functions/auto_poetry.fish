@@ -16,6 +16,12 @@ function auto_poetry --description "Auto-activate Poetry environments"
         test "$POETRY_AUTO_VERBOSE" = 1; and echo "poetry-auto: Poetry not installed"
         return
     end
+    
+    # Make sure the POETRY_AUTO_CACHE_DIR exists
+    if not set -q POETRY_AUTO_CACHE_DIR
+        set -g POETRY_AUTO_CACHE_DIR "$HOME/.cache/poetry_auto"
+    end
+    mkdir -p "$cache_dir" 2>/dev/null
 
     # Check for direnv managed environment
     if set -q DIRENV_DIR; and test -f .envrc

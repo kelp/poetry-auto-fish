@@ -7,6 +7,9 @@ set -g POETRY_AUTO_DISABLE 0
 set -g POETRY_AUTO_VERBOSE 1
 set -g POETRY_AUTO_CACHE_DIR /tmp/poetry_auto_test_cache
 
+# Ensure the cache directory exists
+mkdir -p $POETRY_AUTO_CACHE_DIR
+
 # Setup test environment
 mkdir -p /tmp/test_poetry_project /tmp/test_regular_dir "$POETRY_AUTO_CACHE_DIR"
 
@@ -43,6 +46,10 @@ function poetry
         mkdir -p /tmp/mock_poetry_venv/bin
         echo "# Mock activate script" > /tmp/mock_poetry_venv/bin/activate.fish
         echo /tmp/mock_poetry_venv
+        return 0
+    end
+    if test "$argv[1]" = "--version"
+        echo "Poetry version 1.2.0"
         return 0
     end
     return 1
@@ -82,6 +89,14 @@ function setup_test
     
     echo "Sourcing from: $FUNCTIONS_DIR/auto_poetry.fish"
     source $FUNCTIONS_DIR/auto_poetry.fish
+    
+    # Debug information
+    echo "- Checking if poetry command is mocked correctly"
+    if type -q poetry
+        poetry --version
+    else
+        echo "- Poetry command not available"
+    end
     
     # Print debug information
     echo "- POETRY_AUTO_CACHE_DIR: $POETRY_AUTO_CACHE_DIR"
